@@ -4,6 +4,43 @@
 import streamlit as st
 import cohere
 import fitz # An alias for PyMuPDF
+import os
+import pandas as pd
+import csv
+
+csv_path = 'docs/SkincareProduct.csv'
+# Handle PDF or CSV 
+def documents_from_file(file_path):
+
+    ext = os.path.splitext(file_path)[1]
+
+    if ext == '.pdf':  
+        return pdf_to_documents(file_path) 
+    elif ext == '.csv':
+        return csv_to_documents(file_path)
+
+    
+# New CSV function   
+def csv_to_documents(csv_path):
+
+    documents = []
+
+    with open(csv_path) as f:
+        reader = csv.DictReader(f)
+
+        for row in reader:
+         
+            # parse CSV
+            
+            product_name = row["product_name"] 
+            product_url = row["product_url"] 
+            product_type = row["product_type"]  
+            product_price = row["price"]
+
+            document = {"product_name": product_name,"product_url": product_url, "product_type": product_type,"product_price": product_price}
+            documents.append(document)
+            
+    return documents
 
 def pdf_to_documents(pdf_path):
     """
@@ -31,40 +68,27 @@ def pdf_to_documents(pdf_path):
             part_num += 1
     return documents
 
-# Check if a valid Cohere API key is found in the .streamlit/secrets.toml file
-# Learn more about Streamlit secrets here - https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management
-api_key_found = False
-if hasattr(st, "secrets"):
-    if "COHERE_API_KEY" in st.secrets.keys():
-        if st.secrets["COHERE_API_KEY"] not in ["", "PASTE YOUR API KEY HERE"]:
-            api_key_found = True
-
 # Add a sidebar to the Streamlit app
 with st.sidebar:
-    if api_key_found:
+    if hasattr(st, "secrets"):
         cohere_api_key = st.secrets["COHERE_API_KEY"]
         # st.write("API key found.")
     else:
         cohere_api_key = st.text_input("Cohere API Key", key="chatbot_api_key", type="password")
         st.markdown("[Get a Cohere API Key](https://dashboard.cohere.ai/api-keys)")
     
-    my_documents = []
-    selected_doc = st.selectbox("Select your departure location", ["Tai Tam Middle School", "Repulse Bay"])
-    if selected_doc == "Tai Tam Bus Schedule":
-        my_documents = pdf_to_documents('docs/HKISTaiTamBusSchedule.pdf')
-    elif selected_doc == "Repulse Bay Bus Schedule":    
-        my_documents = pdf_to_documents('docs/HKISRepulseBayBusSchedule.pdf')
-    else:
-        my_documents = pdf_to_documents('docs/HKISTaiTamBusSchedule.pdf')
+    skin_type = st.selectbox('Select your skin type',
+    ['Oily','Dry','Normal','Combination','Sensitive'])
+
 
     # st.write(f"Selected document: {selected_doc}")
 
 # Set the title of the Streamlit app
-st.title("💬 HKIS Bus Helper")
+st.title("SkinCare Bot")
 
 # Initialize the chat history with a greeting message
 if "messages" not in st.session_state:
-    st.session_state["messages"] = [{"role": "assistant", "text": "Hi! I'm the HKIS Bus Helper. Select your location from the dropdown then ask me where you'd like to go and I'll do my best to find a school bus that will get you there."}]
+    st.session_state["messages"] = [{"role": "assistant", "text": "Hi, I'm SkinBot! How can I help you today?"}]
 
 # Display the chat messages
 for msg in st.session_state.messages:
@@ -83,21 +107,15 @@ if prompt := st.chat_input():
     # Display the user message in the chat window
     st.chat_message("user").write(prompt)
 
-    preamble = """You are the Hong Kong International School Bus Helper bot. You help people understand the bus schedule.
-    When someone mentions a location you should refer to the document to see if there are buses that stop nearby.
-    Respond with advice about which buses will stop the closest to their destination, the name of the stop they 
-    should get off at and the name of the suburb that the stop is located in. 
-    Finish with brief instructions for how they can get from the stop to their destination.
-    Group the buses you recommend by the time they depart. If the document is about Tai Tam then group your recommendations by the following departure times: 3:15, 4:20 and 5pm. 
-    If the document is about repulse bay then state the departure time is 4pm.
-    """
+    preamble = f"""You are the a SkinBot apprentice. You have been tasked with answering questions and give skincare recommendations.
+    Be concise with your response and provide the best possible answer. The user definitely has {skin_type} skin type."""
 
     # Send the user message and pdf text to the model and capture the response
     response = client.chat(chat_history=st.session_state.messages,
                            message=prompt,
-                           documents=my_documents,
+                           documents=documents_from_file(csv_path),
                            prompt_truncation='AUTO',
-                           preamble=preamble)
+                           preamble=preamble,)
     
     # Add the user prompt to the chat history
     st.session_state.messages.append({"role": "user", "text": prompt})
