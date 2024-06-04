@@ -80,6 +80,18 @@ with st.sidebar:
     skin_type = st.selectbox('Select your skin type',
     ['Oily','Dry','Normal','Combination','Sensitive'])
 
+    skin_concern = st.multiselect(
+    "What is your skin concern?",
+    ["Acne", "Fungal Acne", "Fine Lines", "Wrinkles", "Redness", "Rosacea", "Sensitivity", "Eczema", "Dryness","Dark Spots", "Oilliness", "Pores", "Dullness", "Texture"],
+    ["Acne"])
+
+    product_specify = st.multiselect(
+    "What do you look for in a skincare product?",
+    ["Vegan", "Cruelty Free", "Fungal Acne Safe", "Fragrance Free", "EU Allergen Free", "Alcohol Free", "Reef Safe", "Silicon Free", "Sulfate Free","Oil Free", "Paraben Free"],
+    ["Vegan"])
+
+
+
 
     # st.write(f"Selected document: {selected_doc}")
 
@@ -108,7 +120,8 @@ if prompt := st.chat_input():
     st.chat_message("user").write(prompt)
 
     preamble = f"""You are the a SkinBot apprentice. You have been tasked with answering questions and give skincare recommendations.
-    Be concise with your response and provide the best possible answer. The user definitely has {skin_type} skin type."""
+    Be concise with your response and provide the best possible answer. 
+    The user definitely has {skin_type} skin type. Their skin concernis {skin_concern}. They would like their product to be {product_specify}."""
 
     # Send the user message and pdf text to the model and capture the response
     response = client.chat(chat_history=st.session_state.messages,
