@@ -98,7 +98,9 @@ with st.sidebar:
     ["Vegan", "Cruelty Free", "Fungal Acne Safe", "Fragrance Free", "EU Allergen Free", "Alcohol Free", "Reef Safe", "Silicon Free", "Sulfate Free","Oil Free", "Paraben Free"],
     ["Vegan"])
 
-
+    price_range = st.slider(
+    "Select the price range in pounds",
+    0.0, 300.0, (25.0, 75.0))
 
 
     # st.write(f"Selected document: {selected_doc}")
@@ -130,9 +132,8 @@ if prompt := st.chat_input():
     preamble = f"""You are the a SkinBot apprentice. You have been tasked with answering questions and give skincare recommendations.
     Be concise with your response and provide the best possible answer. 
     The user definitely has {skin_type} skin type. Their skin concernis {skin_concern}. They would like their product to be {product_specify}.
-    If they ask about a product, provide the product name, price, and url.
     The price is in pounds
-    If they ask about their own skin, get it from the user and provide a recommendation."""
+    If they ask about their own skin, get it from the user and provide a recommendation in great detail. Base your product on the rank, price, skin type and brand"""
 
     # Send the user message and pdf text to the model and capture the response
     response = client.chat(chat_history=st.session_state.messages,
