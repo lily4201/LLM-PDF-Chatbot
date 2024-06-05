@@ -8,7 +8,7 @@ import os
 import pandas as pd
 import csv
 
-csv_path = 'docs/SkincareProduct.csv'
+csv_path = 'docs/cosmetics.csv'
 # Handle PDF or CSV 
 def documents_from_file(file_path):
 
@@ -21,26 +21,34 @@ def documents_from_file(file_path):
 
     
 # New CSV function   
+# New CSV function   
 def csv_to_documents(csv_path):
 
-    documents = []
+  documents = []
 
-    with open(csv_path) as f:
-        reader = csv.DictReader(f)
+  with open(csv_path) as f:
+    reader = csv.DictReader(f)
 
-        for row in reader:
-         
-            # parse CSV
-            
-            product_name = row["product_name"] 
-            product_url = row["product_url"] 
-            product_type = row["product_type"]  
-            product_price = row["price"]
+    for row in reader:
 
-            document = {"product_name": product_name,"product_url": product_url, "product_type": product_type,"product_price": product_price}
-            documents.append(document)
-            
-    return documents
+      document = {
+        "product_name": row["Name"],
+        "product_brand": row["Brand"],
+        "product_price": row["Price"],
+        "product_rank": row["Rank"],
+        "product_ingredients": row["Ingredients"],
+        "product_combination": row["Combination"], 
+        "product_dry": row["Dry"],
+        "product_normal": row["Normal"],
+        "product_oily": row["Oily"],
+        "product_sensitive": row["Sensitive"],
+        "snippet": row["Name"] + " " + row["Brand"] 
+      }
+
+      documents.append(document)
+      
+  return documents
+
 
 def pdf_to_documents(pdf_path):
     """
@@ -96,7 +104,7 @@ with st.sidebar:
     # st.write(f"Selected document: {selected_doc}")
 
 # Set the title of the Streamlit app
-st.title("SkinCare Bot")
+st.title("Bot")
 
 # Initialize the chat history with a greeting message
 if "messages" not in st.session_state:
@@ -121,7 +129,10 @@ if prompt := st.chat_input():
 
     preamble = f"""You are the a SkinBot apprentice. You have been tasked with answering questions and give skincare recommendations.
     Be concise with your response and provide the best possible answer. 
-    The user definitely has {skin_type} skin type. Their skin concernis {skin_concern}. They would like their product to be {product_specify}."""
+    The user definitely has {skin_type} skin type. Their skin concernis {skin_concern}. They would like their product to be {product_specify}.
+    If they ask about a product, provide the product name, price, and url.
+    The price is in pounds
+    If they ask about their own skin, get it from the user and provide a recommendation."""
 
     # Send the user message and pdf text to the model and capture the response
     response = client.chat(chat_history=st.session_state.messages,
