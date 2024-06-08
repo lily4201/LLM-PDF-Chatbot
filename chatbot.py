@@ -79,12 +79,9 @@ def pdf_to_documents(pdf_path):
 
 # Add a sidebar to the Streamlit app
 with st.sidebar:
-    if hasattr(st, "secrets"):
-        cohere_api_key = st.secrets["COHERE_API_KEY"]
-        # st.write("API key found.")
-    else:
-        cohere_api_key = st.text_input("Cohere API Key", key="chatbot_api_key", type="password")
-        st.markdown("[Get a Cohere API Key](https://dashboard.cohere.ai/api-keys)")
+    
+    cohere_api_key = st.text_input("Cohere API Key", key="chatbot_api_key", type="password")
+    st.markdown("[Get a Cohere API Key](https://dashboard.cohere.ai/api-keys)")
     
     skin_type = st.selectbox('Select your skin type',
     ['Oily','Dry','Normal','Combination','Sensitive'])
