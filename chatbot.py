@@ -7,6 +7,7 @@ import fitz # An alias for PyMuPDF
 import os
 import pandas as pd
 import csv
+from PIL import Image
 
 csv_path = 'docs/cosmetics.csv'
 # Handle PDF or CSV 
@@ -106,7 +107,20 @@ with st.sidebar:
     # st.write(f"Selected document: {selected_doc}")
 
 # Set the title of the Streamlit app
+
+image_path = "Icon.png"
+image = Image.open(image_path)
+image = image.resize((75, 75))
+st.image(image)
+
 st.title("SkinCare Bot")
+
+st.info(
+    "This Chatbot uses a CSV file to provide skincare recommendations."
+    "Check if the reponse is accurate at [CSV File](https://www.kaggle.com/datasets/kingabzpro/cosmetics-datasets).",
+    icon="📃",
+)
+
 
 # Initialize the chat history with a greeting message
 if "messages" not in st.session_state:
@@ -133,7 +147,8 @@ if prompt := st.chat_input():
     Be concise with your response and provide the best possible answer. 
     The user definitely has {skin_type} skin type. Their skin concernis {skin_concern}. They would like their product to be {product_specify}. The price range is between {price_range[0]} and {price_range[1]}.
     The price is in pounds
-    If they ask about their own skin, get it from the user and provide a recommendation in great detail. Explain your reasoning. Base your product on the rank, price, skin type and brand"""
+    Use {skin_type} skin type, {skin_concern}, {product_specify} and price range to provide a recommendation.
+    If they ask about their own skin, get it from the user and provide a recommendation in great detail. Explain your reasoning. """
 
     # Send the user message and pdf text to the model and capture the response
     response = client.chat(chat_history=st.session_state.messages,
