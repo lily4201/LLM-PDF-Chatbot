@@ -124,7 +124,7 @@ st.info(
 
 # Initialize the chat history with a greeting message
 if "messages" not in st.session_state:
-    st.session_state["messages"] = [{"role": "assistant", "text": "Hi, I'm SkinBot! How can I help you today?"}]
+    st.session_state["messages"] = [{"role": "assistant", "text": "Hi, I'm SkinBot! I'll give me you product recommendations based on your skin type, skin concern, product preference and price range. Ask me anything!"}]
 
 # Display the chat messages
 for msg in st.session_state.messages:
