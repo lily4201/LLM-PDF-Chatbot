@@ -108,10 +108,10 @@ with st.sidebar:
 
 # Set the title of the Streamlit app
 
-image_path = "Icon.png"
-image = Image.open(image_path)
-image = image.resize((75, 75))
-st.image(image)
+#image_path = "Icon.png"
+#image = Image.open(image_path)
+#image = image.resize((75, 75))
+#st.image(image)
 
 st.title("SkinCare Bot")
 
